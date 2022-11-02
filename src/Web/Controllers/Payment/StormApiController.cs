@@ -31,14 +31,11 @@ namespace Web.Controllers
                 {
                     Reference = model.Data.Reference
                 }); 
-
                 return Ok(result);
-
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, DefaultErrorMessage);
-
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -53,7 +50,6 @@ namespace Web.Controllers
                 {
                     Reference = model.Data.Reference
                 });
-
                 if (validateResult.result.Length == 2)
                 {
                     result = await Mediator.Send(new CreatePendingTransactionCommand()
@@ -65,12 +61,10 @@ namespace Web.Controllers
                     });
                 }    
                 return Ok(result);
-
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, DefaultErrorMessage);
-
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

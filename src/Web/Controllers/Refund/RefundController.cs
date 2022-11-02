@@ -30,9 +30,8 @@ namespace Web.Controllers
             {
                 var result = await Mediator.Send(new RefundRequestCommand()
                 {
-                    Refund = model//_mapper.Map<Refund>(model)
+                    Refund = model
                 });
-
                 return Ok(result);
             }
             catch (Exception ex)

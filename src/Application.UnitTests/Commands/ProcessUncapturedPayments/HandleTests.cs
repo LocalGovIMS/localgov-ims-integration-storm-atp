@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using Application.Result;
 using System;
 using Microsoft.Extensions.Logging;
+using LocalGovImsApiClient.Client;
 
 namespace Application.UnitTests.Commands.ProcessUncapturedPayments
 {
@@ -108,6 +109,32 @@ namespace Application.UnitTests.Commands.ProcessUncapturedPayments
         }
 
         [Fact]
+        public async Task Handles_null_return_from_cybersource()
+        {
+            // Arrange
+            _mockPaymentRepository.Setup(x => x.List(It.IsAny<Expression<Func<Payment, bool>>>()))
+               .ReturnsAsync(new OperationResult<List<Payment>>(true)
+               {
+                   Data = new List<Payment>()
+                   {
+                        new Payment() { Reference = "Test1", PaymentId = "PaymentId1", Finished = false, RefundReference = "test3" },
+                   }
+               });
+            
+            _mockCybersourceRestApiClient.Setup(x => x.SearchPayments(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(new List<Payment>() );
+
+            // Act
+            var result = await _commandHandler.Handle(_command, new CancellationToken());
+
+            // Assert
+            result.Should().BeOfType<ProcessUncapturedPaymentsResult>();
+            result.TotalIdentified.Should().Be(1);
+            result.TotalErrors.Should().Be(0);
+            result.TotalMarkedAsCaptured.Should().Be(0);
+        }
+
+        [Fact]
         public async Task Handle_returns_ErrorWhenPendingTransactionNotFound()
         {
             // Arrange
@@ -123,6 +150,32 @@ namespace Application.UnitTests.Commands.ProcessUncapturedPayments
             _mockPendingTransactionsApi.Setup(x => x.PendingTransactionsGetAsync(It.IsAny<string>(), 0, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<PendingTransactionModel>() {
     });
+            // Act
+            var result = await _commandHandler.Handle(_command, new CancellationToken());
+
+            // Assert
+            result.Should().BeOfType<ProcessUncapturedPaymentsResult>();
+            result.TotalIdentified.Should().Be(1);
+            result.TotalErrors.Should().Be(1);
+            result.TotalMarkedAsCaptured.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task Handle_returns_ErrorWhenPendingTransactionAPIExceptionIsThrown()
+        {
+            // Arrange
+            _mockPaymentRepository.Setup(x => x.List(It.IsAny<Expression<Func<Payment, bool>>>()))
+                .ReturnsAsync(new OperationResult<List<Payment>>(true)
+                {
+                    Data = new List<Payment>()
+                    {
+                        new Payment() { Reference = "Test1", PaymentId = "PaymentId1", Finished = false, RefundReference = "test3" },
+                    }
+                });
+
+            _mockPendingTransactionsApi.Setup(x => x.PendingTransactionsGetAsync(It.IsAny<string>(), 0, It.IsAny<CancellationToken>()))
+                .Throws(new ApiException(404,""));
+
             // Act
             var result = await _commandHandler.Handle(_command, new CancellationToken());
 

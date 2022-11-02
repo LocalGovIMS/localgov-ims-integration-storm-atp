@@ -7,9 +7,9 @@
 
   <ItemGroup>
     <PackageReference Include="CyberSource.Authentication" Version="0.0.0.15" />
-    <PackageReference Include="CyberSource.Rest.Client.NetStandard" Version="0.0.1.17" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.13" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.13">
+    <PackageReference Include="CyberSource.Rest.Client.NetStandard" Version="0.0.1.19" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
